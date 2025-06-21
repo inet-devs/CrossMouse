@@ -4,7 +4,6 @@ import pyautogui
 import time
 HOST = '0.0.0.0'
 PORT = 2025
-
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind((HOST, PORT))
 server_socket.listen(1)
@@ -15,6 +14,7 @@ print(f"Connected by {addr}")
 
 try:
     while True:
+        time.sleep(1)
         data = conn.recv(1024)
         if not data:
             break
@@ -23,7 +23,6 @@ try:
         y = int(y_str)
         print(f"Mouse Position Received: X={x}, Y={y}")
         pyautogui.moveTo(x, y)
-        time.sleep(1)
 except KeyboardInterrupt:
     print("Server shutting down.")
 
