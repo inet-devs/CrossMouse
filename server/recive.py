@@ -1,30 +1,25 @@
-# server.py
 import socket
-import pyautogui
-import time
-HOST = '0.0.0.0'
-PORT = 2025
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind((HOST, PORT))
-server_socket.listen(1)
+from pynput.mouse import Controller
 
-print(f"Server listening on {HOST}:{PORT}...")
-conn, addr = server_socket.accept()
-print(f"Connected by {addr}")
+mouse = Controller()
+
+HOST = '0.0.0.0'  # Listen on all interfaces
+PORT = 2025
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind((HOST, PORT))
+
+print(f"UDP server listening on {HOST}:{PORT}")
 
 try:
     while True:
-        time.sleep(1)
-        data = conn.recv(1024)
-        if not data:
-            break
-        x_str, y_str = data.decode().split(",")
-        x = int(x_str)
-        y = int(y_str)
-        print(f"Mouse Position Received: X={x}, Y={y}")
-        pyautogui.moveTo(x, y)
+        data, addr = sock.recvfrom(1024)
+        x_str, y_str = data.decode().split(',')
+        x = float(x_str)
+        y = float(y_str)
+        mouse.position = (x, y)
+        print(f"Moved mouse to: X={x}, Y={y}")
 except KeyboardInterrupt:
-    print("Server shutting down.")
-
-conn.close()
-server_socket.close()
+    print("UDP server shutting down.")
+finally:
+    sock.close()

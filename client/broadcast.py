@@ -3,21 +3,23 @@ import time
 from pynput.mouse import Controller
 
 mouse = Controller()
-print('enter ip:')
-HOST = input()  # Replace with the server's IP address
+print("IP:")
+SERVER_IP = input()'  # Replace with your server (Windows) IP
 PORT = 2025
 
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect((HOST, PORT))
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 try:
+    last_pos = None
     while True:
-        time.sleep(1)
-        curloc = mouse.position
-        message = f"{curloc[0]},{curloc[1]}"  # convert tuple to "x,y" string
-        client_socket.sendall(message.encode())
-        print("Sent:", message)
+        pos = mouse.position
+        if pos != last_pos:
+            message = f"{pos[0]},{pos[1]}"
+            sock.sendto(message.encode(), (SERVER_IP, PORT))
+            print("Sent:", message)
+            last_pos = pos
+        time.sleep(0.05)  # adjust as needed
 except KeyboardInterrupt:
-    print("Client stopping.")
-
-client_socket.close()
+    print("UDP client stopped.")
+finally:
+    sock.close()
